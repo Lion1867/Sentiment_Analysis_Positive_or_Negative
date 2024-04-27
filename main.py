@@ -1,8 +1,6 @@
 import streamlit as st
 import joblib
 import nltk
-nltk.download('punkt')
-nltk.download('wordnet')
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 import docx
