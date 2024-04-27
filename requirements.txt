@@ -1,3 +1,5 @@
 joblib==1.1.0
 nltk
 python-docx
+textract
+PyPDF2
