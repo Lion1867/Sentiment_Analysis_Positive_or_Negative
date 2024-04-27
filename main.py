@@ -7,6 +7,8 @@ from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 import docx
 import textract
+import PyPDF2
+import base64
 
 # Инициализация лемматизатора
 lemmatizer = WordNetLemmatizer()
@@ -25,12 +27,16 @@ loaded_vectorizer = joblib.load('vectorizer_sentiment_analysis.joblib')
 
 # Функция для чтения текста из файла
 def read_text_from_file(file):
-    if file.name.endswith('.txt'):
-        with open(file, 'r', encoding='utf-8') as f:
-            text = f.read()
-    elif file.name.endswith('.docx'):
+    if file.type == 'text/plain':
+        text = file.read().decode('utf-8')
+    elif file.type == 'application/msword' or file.type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
         doc = docx.Document(file)
         text = '\n'.join([p.text for p in doc.paragraphs])
+    elif file.type == 'application/pdf':
+        pdf_file = PyPDF2.PdfReader(file)
+        text = ''
+        for page in pdf_file.pages:
+            text += page.extract_text()
     else:
         text = textract.process(file).decode('utf-8')
     return text
@@ -43,33 +49,76 @@ def predict_sentiment(text):
     predicted_proba = loaded_clf.predict_proba(new_text_vectorized)
     return predicted_class[0], predicted_proba[0]
 
+# Картинка сверху
+def add_top_image():
+    with open("3_kino.jpg", "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read()).decode()
+
+    top_image = f'''
+    <style>
+    .top-image {{
+        background-image: url(data:image/jpg;base64,{encoded_string});
+        background-size: cover;
+        height: 200px;
+        width: 100%;
+        position: relative;
+    }}
+    </style>
+    <div class="top-image"></div>
+    '''
+    st.markdown(top_image, unsafe_allow_html=True)
+
 # Заголовок приложения
-st.title('Movie Review Sentiment Analysis')
+add_top_image()
+st.markdown("<h1 style='text-align: center; color: black;'>Анализ тональности отзывов на английском языке о фильмах</h1>", unsafe_allow_html=True)
 
 # Ввод текста или загрузка файла
-input_type = st.radio('Choose input type', ['Text', 'File'])
-if input_type == 'Text':
-    new_text = st.text_area('Enter a new review', max_chars=1000)
-    if st.button('Predict sentiment'):
+input_type = st.radio('Выберите тип ввода', ['Текст', 'Файл'])
+
+if input_type == 'Текст':
+    st.markdown('<div style="margin-bottom: -1.5em;">Введите новый отзыв<br>на АНГЛИЙСКОМ языке</div>',
+                unsafe_allow_html=True)
+    new_text = st.text_area("", max_chars=1000)
+    if st.button('Предсказать тональность'):
         if len(new_text) > 0:
             predicted_class, predicted_proba = predict_sentiment(new_text)
-            st.write("Predicted class:", "positive" if predicted_class == 1 else "negative")
-            st.write("Probability of positive class:", predicted_proba[1])
-            st.write("Probability of negative class:", predicted_proba[0])
+
+            # Вывод соответствующего заголовка и картинки
+            if predicted_class == 1:
+                st.subheader("ПОЛОЖИТЕЛЬНЫЙ ОТЗЫВ")
+                st.write("Вероятность положительного класса:", predicted_proba[1])
+                st.write("Вероятность отрицательного класса:", predicted_proba[0])
+                st.image("1_pos.jpg", use_column_width=True)
+            else:
+                st.subheader("ОТРИЦАТЕЛЬНЫЙ ОТЗЫВ")
+                st.write("Вероятность положительного класса:", predicted_proba[1])
+                st.write("Вероятность отрицательного класса:", predicted_proba[0])
+                st.image("2_neg.jpg", use_column_width=True)
         else:
-            st.warning('Please enter a review.')
+            st.warning('Пожалуйста, введите отзыв.')
 else:
-    file_uploader = st.file_uploader('Upload a file (Word or TXT format)', type=['txt', 'docx'])
+    file_uploader = st.file_uploader('Загрузите файл (Word, TXT или PDF формат)', type=['txt', 'docx', 'pdf'])
     if file_uploader:
         if file_uploader.size > 1000000:
-            st.warning('File size exceeds the limit of 1 MB.')
+            st.warning('Размер файла превышает лимит в 1 МБ.')
         else:
             text = read_text_from_file(file_uploader)
-            if st.button('Predict sentiment'):
+            if st.button('Предсказать тональность'):
                 if len(text) > 0:
                     predicted_class, predicted_proba = predict_sentiment(text)
-                    st.write("Predicted class:", "positive" if predicted_class == 1 else "negative")
-                    st.write("Probability of positive class:", predicted_proba[1])
-                    st.write("Probability of negative class:", predicted_proba[0])
+                    # Вывод соответствующего заголовка и картинки
+                    if predicted_class == 1:
+                        st.subheader("ПОЛОЖИТЕЛЬНЫЙ")
+                        st.write("Вероятность положительного класса:", predicted_proba[1])
+                        st.write("Вероятность отрицательного класса:", predicted_proba[0])
+                        st.image("1_pos.jpg", use_column_width=True)
+                    else:
+                        st.subheader("ОТРИЦАТЕЛЬНЫЙ")
+                        st.write("Вероятность положительного класса:", predicted_proba[1])
+                        st.write("Вероятность отрицательного класса:", predicted_proba[0])
+                        st.image("2_neg.jpg", use_column_width=True)
                 else:
-                    st.warning('The file does not contain any text.')
+                    st.warning('Файл не содержит текста.')
+
+# Закрывающий тег для вложенного контейнера
+st.markdown("""</div>""", unsafe_allow_html=True)
