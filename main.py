@@ -70,15 +70,13 @@ def add_top_image():
 
 # Заголовок приложения
 add_top_image()
-st.markdown("<h1 style='text-align: center; color: black;'>Анализ тональности отзывов на английском языке о фильмах</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: black;'>Анализ тональности отзывов <br>на английском языке о фильмах</h1>", unsafe_allow_html=True)
 
 # Ввод текста или загрузка файла
 input_type = st.radio('Выберите тип ввода', ['Текст', 'Файл'])
 
 if input_type == 'Текст':
-    st.markdown('<div style="margin-bottom: -1.5em;">Введите новый отзыв<br>на АНГЛИЙСКОМ языке</div>',
-                unsafe_allow_html=True)
-    new_text = st.text_area("", max_chars=1000)
+    new_text = st.text_area('Введите отзыв на АНГЛИЙСКОМ языке', max_chars=1000)
     if st.button('Предсказать тональность'):
         if len(new_text) > 0:
             predicted_class, predicted_proba = predict_sentiment(new_text)
