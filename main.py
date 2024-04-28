@@ -71,6 +71,20 @@ def add_top_image():
     '''
     st.markdown(top_image, unsafe_allow_html=True)
 
+# Функция для добавления CSS-стилей
+def add_css(css_code):
+    st.markdown(f"<style>{css_code}</style>", unsafe_allow_html=True)
+
+# Добавляем легкий розовый фон ко всему контенту на странице
+add_css("""
+    .main .block-container {
+        background-color: #FFFFFF;
+    }
+    .main {
+        background-color: #FFF2F2;
+    }
+""")
+
 # Заголовок приложения
 add_top_image()
 st.markdown("<h1 style='text-align: center; color: black;'>Анализ тональности отзывов <br>на английском языке о фильмах</h1>", unsafe_allow_html=True)
@@ -80,28 +94,23 @@ input_type = st.radio('Выберите тип ввода', ['Текст', 'Фа
 
 if input_type == 'Текст':
     new_text = st.text_area('Введите отзыв на АНГЛИЙСКОМ языке', max_chars=1000)
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button('Предсказать тональность'):
-            if len(new_text) > 0:
-                predicted_class, predicted_proba = predict_sentiment(new_text)
+    if st.button('Предсказать тональность'):
+        if len(new_text) > 0:
+            predicted_class, predicted_proba = predict_sentiment(new_text)
 
-                # Вывод соответствующего заголовка и картинки
-                if predicted_class == 1:
-                    st.subheader("ПОЛОЖИТЕЛЬНЫЙ ОТЗЫВ")
-                    st.write("Вероятность положительного класса:", predicted_proba[1])
-                    st.write("Вероятность отрицательного класса:", predicted_proba[0])
-                    st.image("1_pos.jpg", use_column_width=True)
-                else:
-                    st.subheader("ОТРИЦАТЕЛЬНЫЙ ОТЗЫВ")
-                    st.write("Вероятность положительного класса:", predicted_proba[1])
-                    st.write("Вероятность отрицательного класса:", predicted_proba[0])
-                    st.image("2_neg.jpg", use_column_width=True)
+            # Вывод соответствующего заголовка и картинки
+            if predicted_class == 1:
+                st.subheader("ПОЛОЖИТЕЛЬНЫЙ ОТЗЫВ")
+                st.write("Вероятность положительного класса:", predicted_proba[1])
+                st.write("Вероятность отрицательного класса:", predicted_proba[0])
+                st.image("1_pos.jpg", use_column_width=True)
             else:
-                st.warning('Пожалуйста, введите отзыв.')
-    with col2:
-        if st.button('Очистить текстовое поле'):
-            new_text = ''
+                st.subheader("ОТРИЦАТЕЛЬНЫЙ ОТЗЫВ")
+                st.write("Вероятность положительного класса:", predicted_proba[1])
+                st.write("Вероятность отрицательного класса:", predicted_proba[0])
+                st.image("2_neg.jpg", use_column_width=True)
+        else:
+            st.warning('Пожалуйста, введите отзыв.')
 else:
     file_uploader = st.file_uploader('Загрузите файл (Word, TXT или PDF формат)', type=['txt', 'docx', 'pdf'])
     if file_uploader:
