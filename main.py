@@ -8,6 +8,7 @@ import textract
 import PyPDF2
 import base64
 import requests
+from io import BytesIO
 
 # Инициализация лемматизатора
 lemmatizer = WordNetLemmatizer()
@@ -19,7 +20,8 @@ def lemmatize_text(text):
     return ' '.join(lemmatized_tokens)
 
 # Загрузка обученной модели
-loaded_clf = joblib.load('model_sentiment_analysis.joblib')
+response = BytesIO(requests.get('https://raw.githubusercontent.com/Lion1867/Sentiment_Analysis_Positive_or_Negative/main/model_sentiment_analysis.joblib').content)
+loaded_clf = joblib.load(response)
 
 # Загрузка CountVectorizer
 loaded_vectorizer = joblib.load('vectorizer_sentiment_analysis.joblib')
