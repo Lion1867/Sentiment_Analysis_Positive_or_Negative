@@ -3,3 +3,4 @@ nltk
 python-docx
 textract
 PyPDF2
+sklearn
