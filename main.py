@@ -9,6 +9,8 @@ import PyPDF2
 import base64
 import requests
 from io import BytesIO
+nltk.download('punkt')
+nltk.download('wordnet')
 
 # Инициализация лемматизатора
 lemmatizer = WordNetLemmatizer()
