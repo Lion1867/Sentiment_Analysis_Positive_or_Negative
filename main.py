@@ -80,23 +80,28 @@ input_type = st.radio('Выберите тип ввода', ['Текст', 'Фа
 
 if input_type == 'Текст':
     new_text = st.text_area('Введите отзыв на АНГЛИЙСКОМ языке', max_chars=1000)
-    if st.button('Предсказать тональность'):
-        if len(new_text) > 0:
-            predicted_class, predicted_proba = predict_sentiment(new_text)
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button('Предсказать тональность'):
+            if len(new_text) > 0:
+                predicted_class, predicted_proba = predict_sentiment(new_text)
 
-            # Вывод соответствующего заголовка и картинки
-            if predicted_class == 1:
-                st.subheader("ПОЛОЖИТЕЛЬНЫЙ ОТЗЫВ")
-                st.write("Вероятность положительного класса:", predicted_proba[1])
-                st.write("Вероятность отрицательного класса:", predicted_proba[0])
-                st.image("1_pos.jpg", use_column_width=True)
+                # Вывод соответствующего заголовка и картинки
+                if predicted_class == 1:
+                    st.subheader("ПОЛОЖИТЕЛЬНЫЙ ОТЗЫВ")
+                    st.write("Вероятность положительного класса:", predicted_proba[1])
+                    st.write("Вероятность отрицательного класса:", predicted_proba[0])
+                    st.image("1_pos.jpg", use_column_width=True)
+                else:
+                    st.subheader("ОТРИЦАТЕЛЬНЫЙ ОТЗЫВ")
+                    st.write("Вероятность положительного класса:", predicted_proba[1])
+                    st.write("Вероятность отрицательного класса:", predicted_proba[0])
+                    st.image("2_neg.jpg", use_column_width=True)
             else:
-                st.subheader("ОТРИЦАТЕЛЬНЫЙ ОТЗЫВ")
-                st.write("Вероятность положительного класса:", predicted_proba[1])
-                st.write("Вероятность отрицательного класса:", predicted_proba[0])
-                st.image("2_neg.jpg", use_column_width=True)
-        else:
-            st.warning('Пожалуйста, введите отзыв.')
+                st.warning('Пожалуйста, введите отзыв.')
+    with col2:
+        if st.button('Очистить текстовое поле'):
+            new_text = ''
 else:
     file_uploader = st.file_uploader('Загрузите файл (Word, TXT или PDF формат)', type=['txt', 'docx', 'pdf'])
     if file_uploader:
