@@ -7,6 +7,7 @@ import docx
 import textract
 import PyPDF2
 import base64
+import requests
 
 # Инициализация лемматизатора
 lemmatizer = WordNetLemmatizer()

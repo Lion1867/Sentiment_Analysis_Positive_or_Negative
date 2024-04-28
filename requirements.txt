@@ -4,3 +4,4 @@ python-docx
 textract
 PyPDF2
 scikit-learn
+requests
